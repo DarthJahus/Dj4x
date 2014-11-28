@@ -1,0 +1,19 @@
+{
+	"user1": {
+		"nicks": ["nick1", "nick2"]
+	},
+	"user2": {
+		"nicks": ["nick"], 
+		"data": {
+			"pandapool": "DXXX",
+			"addie.cc": "addie", 
+			"hashfaster": "sUcHApIkEy"
+		}
+	}, 
+	"dj4x": {
+		"nicks": ["dj4x", "dj4x_", "_dj4x"], 
+		"data": {
+			"donation": "DJ4x8RJKmBLKVaFynZsqPi71oZMdUziHmo"
+		}
+	}
+}

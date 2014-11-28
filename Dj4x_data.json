@@ -1,0 +1,147 @@
+{
+	"bot": {
+		"name": "Dj4x", 
+		"version": "2.8.10", 
+		"description": "Dj4x bot, by Jahus", 
+		"version_info": {
+			"name": "Bonne Jenet", 
+			"link": "http://i.imgur.com/Ale0o5h.jpg"
+		}, 
+		"cmd_default": {
+			"msg_trig": "bonne", 
+			"msg_descr": "Bonne? Bonne Jenet!", 
+			"msg_txt": "Bonne Jenet guards and watches over my treasure: %(colour)s04[nsfw]%(colour)s http://i.imgur.com/Ale0o5h.jpg", 
+			"action_trig": "watch", 
+			"action_words": ["watch", "watches"], 
+			"action_suppl": " looking at Bonne Jenet as she does filthy things on her treasure: %(colour)s04[nsfw]%(colour)s http://i.imgur.com/Ale0o5h.jpg", 
+			"action_descr": "Watch? Watch Bonne Jenet!"
+		} 
+	}, 
+	"triggers": {
+		"admins": "%", 
+		"users_sp": "#", 
+		"users": "+", 
+		"api": "*", 
+		"help": "+"
+	}, 
+	"admins": ["Jahus", "Jahus_", "_Jahus", "Atmalik"],
+	"users_sp": ["Jahus", "Sayura"],
+	"morito": "Rhum Bacardi + eau pétillante + sucre de canne + citron vert pressé + feuilles de menthe + glace", 
+	"diablo": "12 fresh mint leaves + 1 tbsp. brown sugar + Juice of 1/2 lime + 1 1/2 oz. (45 ml) white tequila + 1/2 oz. (15 ml) crème de cassis + Lemon-lime soda + (optional) Sugarcane stick and fresh mint leaves for garnish", 
+	"vend": "%(original)s a [%(bold)s%(colour)s0410 000%(colour)s %(colour)s08BTC%(colour)s%(bold)s] %(bold)sPizza%(bold)s: %(colour)s02https://bitcointalk.org/index.php?topic=137.0%(colour)s // %(original)s a [%(bold)s%(colour)s03$%(colour)s04150%(colour)s%(bold)s] %(bold)sSapphire HD 6950/6970%(bold)s @ %(colour)s02Scrypt : %(bold)s470 kH/s%(bold)s%(colour)s | %(colour)s03x11 : %(bold)s1 548 kH/s%(bold)s%(colour)s // %(original)s a [%(bold)s%(colour)s03$%(colour)s04180%(colour)s%(bold)s] %(bold)sR9 280X%(bold)s @ %(colour)s02Scrypt : %(bold)s580 kH/s%(bold)s%(colour)s | %(colour)s03x11 : %(bold)s3.8 MH/s%(bold)s%(colour)s", 
+	"tip_params": {
+		"tip_ban": ["pndtip", "doger", "dogexm", "halvening", "hardc0re", "chanserv", "tomriddlebot", "dogedtip", "kekscore", "dogewallet", "hypermistbot"],
+		"tip_channels": {
+			"#dogecoinfrance": [7, "doge", 2, "doger"], 
+			"#pandacoinpnd": [30, "pnd", 2, "pndtip"], 
+			"#dogecoinscandinavia": [7, "doge", 2, "doger"], 
+			"#tomriddle": [7, "doge", 2, "doger"], 
+			"#doge-coin": [7, "doge", 2, "dogewallet"], 
+			"#dogecoindark": [100, "doged", 2, "dogedtip"], 
+			"##dogechat": [7, "doge", 2, "doger"]
+		}
+	}, 
+	"timer_first_timout": 120, 
+	"timer_timout": 600,
+	"rain_params": {
+		"bots": {
+			"doger": {
+				"coin": "doge", 
+				"min": 5
+			}
+		}, 
+		"rain_ban": {
+			"": {"nicks": ["chanserv", "all"], "reason": "Service/Unregistred"}, 
+			"doger": {"nicks": ["doger", "all"], "reason": "Tip bot"}, 
+			"dj4x": {"nicks": ["all"], "reason": "Self"}, 
+			"halvening": {"nicks": ["halvening", "hardc0re", "all"], "reason": "Bot"}, 
+			"dogexm": {"nicks": ["dogexm", "all"], "reason": "Bot"}, 
+			"doge_soaker3": {"nicks": ["doge_soaker3", "all"], "reason": "Bot"}, 
+			"spamsrv": {"nicks": ["all"], "reason": "Bot"}, 
+			"kekscore": {"nicks": ["kekscore"], "reason": "Bot"}
+		}, 
+		"rain_timeout": 3600 
+	}, 
+	"tip_timeout": 300, 
+	"tip_manage_commands": ["rain", "return", "keep"], 
+	"ms_params": {
+		"ms_client_id": "Dj4xIRC",
+		"ms_client_secret": "super+Sicret/Key=",
+		"ms_scope": "http://api.microsofttranslator.com",
+		"ms_grant_type": "client_credentials", 
+		"ms_language": {
+			"ar" : "Arabic", 
+			"bg" : "Bulgarian", 
+			"ca" : "Catalan", 
+			"zh-CHS" : "Chinese Simplified", 
+			"zh-CHT" : "Chinese Traditional", 
+			"cs" : "Czech", 
+			"da" : "Danish", 
+			"nl" : "Dutch", 
+			"en" : "English", 
+			"et" : "Estonian", 
+			"fi" : "Finnish", 
+			"fr" : "French", 
+			"de" : "German", 
+			"el" : "Greek", 
+			"ht" : "Haitian Creole", 
+			"he" : "Hebrew", 
+			"hi" : "Hindi", 
+			"mww" : "Hmong Daw", 
+			"hu" : "Hungarian", 
+			"id" : "Indonesian", 
+			"it" : "Italian", 
+			"ja" : "Japanese", 
+			"tlh" : "Klingon", 
+			"tlh-Qaak" : "Klingon (pIqaD)", 
+			"ko" : "Korean", 
+			"lv" : "Latvian", 
+			"lt" : "Lithuanian", 
+			"ms" : "Malay", 
+			"mt" : "Maltese", 
+			"no" : "Norwegian", 
+			"fa" : "Persian", 
+			"pl" : "Polish", 
+			"pt" : "Portuguese", 
+			"ro" : "Romanian", 
+			"ru" : "Russian", 
+			"sk" : "Slovak", 
+			"sl" : "Slovenian", 
+			"es" : "Spanish", 
+			"sv" : "Swedish", 
+			"th" : "Thai", 
+			"tr" : "Turkish", 
+			"uk" : "Ukrainian", 
+			"ur" : "Urdu", 
+			"vi" : "Vietnamese", 
+			"cy" : "Welsh"
+		}
+	}, 
+	"reminders": {
+		"DOGED_on_Bter": {
+			"message": "%(bold)sFriendly reminder:%(bold)s If you have an account on %(bold)s%(colour)s04B%(colour)s07ter%(colour)s%(bold)s, please consider voting for DogecoinDark DOGED: https://bter.com/voting#DOGED. Thank you!", 
+			"timeout": 3600, 
+			"channels": ["#dogecoindark"]
+		}, 
+		"PND_on_Bter": {
+			"message": "%(bold)sFriendly reminder:%(bold)s If you have an account on %(bold)s%(colour)s04B%(colour)s07ter%(colour)s%(bold)s, please consider voting for Pandacoin PND: https://bter.com/voting#PND. Thank you!", 
+			"timeout": 3600, 
+			"channels": ["#dogecoinfrance", "#pandacoinpnd"]
+		}, 
+		"PND_on_CoinSwap": {
+			"message": "%(bold)sFriendly reminder%(bold)s (bis)%(bold)s:%(bold)s Join %(bold)s#CoinSwap%(bold)s and vote for %(bold)sPND%(bold)s using %(underline)s!vote pnd%(underline)s. Thank you!", 
+			"timeout": 3600, 
+			"channels": ["#dogecoinfrance", "#pandacoinpnd"]
+		}, 
+		"DOGED_on_CoinSwap": {
+			"message": "%(bold)sFriendly reminder%(bold)s (bis)%(bold)s:%(bold)s Join %(bold)s#CoinSwap%(bold)s and vote for %(bold)sDOGED%(bold)s to be %(italic)stomorrow's Coin of the Day%(italic)s; just type %(underline)s!vote pnd%(underline)s. Thank you!", 
+			"timeout": 3600, 
+			"channels": ["#dogecoinfrance", "#dogecoindark"]
+		}, 
+		"!lotto": {
+			"message": "!lotto", 
+			"timeout": 43200, 
+			"channels": ["#pandacoinpnd"]
+		}
+	}
+}
