@@ -50,6 +50,10 @@
 #     (2.8.9)               - Added DOGED to AutoTip
 # * 2014-11-09 :
 #     (2.8.10)              - Fixed float division
+# * 2014-11-28 :
+#     (2.9.10)              - Ajouté : système de sécurité
+#                             pour vérifier l'identité des
+#                             administrateurs
 #--------------------------------------------------------------
 #
 from __future__ import division      # Float division
@@ -599,11 +603,19 @@ def cmd_admins(user, context, msg, words):
 	chan = context.get_info("channel")
 	cmd = words[0]
 	args = words[1:]
-	if (cmd.lower() == "do"):
-		if (len(args) < 2):
-			context.command("msg %s ERROR: Not enough arguments to make a command." % chan)
-		else:
-			do_cmd(user, context, args[0], args[1:])
+	cc_users = context.get_list("users")
+	for i in cc_users:
+		if (i.nick.lower() == user.lower()):
+			if i.account.lower() in admins:
+				if (cmd.lower() == "do"):
+					if (len(args) < 2):
+						context.command("msg %s ERROR: Not enough arguments to make a command." % chan)
+					else:
+						do_cmd(user, context, args[0], args[1:])
+			else:
+				context.command("msg %s Please, %s (account: '%s'), stop \002\00304impersonating\003\002!" % (chan, user, i.account))
+				for admin in admins:
+					context.command("msg %s \002\00304SECURITY ALERT!\003\002 User '%s' on account '%s' is trying to impersonate one of you, Masters!" % (admin, user, i.account))
 #
 def cmd_api(user, context, cmd, args):
 	chan = context.get_info("channel")
