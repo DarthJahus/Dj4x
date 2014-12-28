@@ -54,6 +54,11 @@
 #     (2.9.10)              - Ajouté : système de sécurité
 #                             pour vérifier l'identité des
 #                             administrateurs
+# * 2014-12-19 :
+#     (2.9.11)              - Added XPY to AutoTip
+# * 2014-12-28 :
+#     (2.9.12)              - Fixed: UTF-8 support for
+#                             *translate and its XML parsing
 #--------------------------------------------------------------
 #
 from __future__ import division      # Float division
@@ -209,6 +214,12 @@ get_action = {
 		"reason_no": "He's thorny!", 
 		"descr": ["> %(users)shug [opt <nick>]" % data.get("triggers"), "  \- Hugs the user or someone who is present on the channel."]
 	}, 
+		"sleep": {
+		"words": ["sleep with", "sleeps with"], 
+		"suppl": [". wow", ". such hot", ". many soft"], 
+		"reason_no": "He's fat!", 
+		"descr": ["> %(users)slick [opt <nick>]" % data.get("triggers"), "  \- Licks the user or someone who is present on the channel."]
+	}, 
 	"cocktail": {
 		"words": ["serve", "serves"], 
 		"suppl": [" a morito", " a diablo"], 
@@ -243,8 +254,8 @@ help = {
 # VARIABLES
 #--------------------------------------------------------------
 DOGE_BLOCK = 31250
-balance = {"doger": "0", "pndtip": "0", "dogewallet": "0", "dogedtip": "0"}
-message_bal = {"doger": 0, "pndtip": 0, "dogewallet": 0, "dogedtip": 0}
+balance = {"doger": "0", "pndtip": "0", "dogewallet": "0", "dogedshibebot": "0", "xpytip": "0"}
+message_bal = {"doger": 0, "pndtip": 0, "dogewallet": 0, "dogedshibebot": 0, "xpytip": 0}
 message_bal_context = None
 ms_token = ""
 ms_token_timout = 0
@@ -298,13 +309,13 @@ def trig_chan(word, word_eol, userdata):
 	auto_tip(user, current_context, words)
 	#
 	triggers = data.get("triggers")
-	if (trig == triggers.get("admins")) and (user in admins):
+	if (trig == triggers.get("admins")) and (user.lower() in admins):
 		cmd_admins(user, current_context, msg_full, words)
 	if (trig == triggers.get("users")):
 		cmd_users(user, current_context, msg_full, words)
 	if (trig == triggers.get("api")):
 		cmd_api(user, current_context, words[0], words[1:])
-	if (trig == triggers.get("susers_sp")) and (user in sp_users):
+	if (trig == triggers.get("susers_sp")) and (user.lower() in sp_users):
 		cmd_users_sp(user, current_context, words[0], words[1:])
 	if (trig == triggers.get("help")) and (words[0].lower() == "help"):
 		get_help(user, current_context, words[0], words[1:])
@@ -370,7 +381,7 @@ def trig_pm(word, word_eol, userdata):
 			msg_bal = msg_full.split()[4][2:]
 		balance.update([("doger", msg_bal)])
 		if (message_bal.get("doger") == 1):
-			message_bal_context.command("msg %s my current Dogecoin balance is: '%s' DOGE" % (message_bal_context.get_info("channel"), balance.get("doger")))
+			message_bal_context.command("msg %s my current Dogecoin balance is: '%s' DOGE" % (message_bal_context.get_info("channel"), (int(balance.get("doger")) - tips_waiting_amount)))
 			message_bal.update([("doger", 0)])
 	if (user.lower() == "pndtip") and (("%s has" % current_nick).lower() in msg_full):
 		msg_bal = msg_full.split()[2]
@@ -378,18 +389,24 @@ def trig_pm(word, word_eol, userdata):
 		if (message_bal.get("pndtip") == 1):
 			message_bal_context.command("msg %s my current Pandacoin balance is: '%s' PND" % (message_bal_context.get_info("channel"), balance.get("pndtip")))
 			message_bal.update([("pndtip", 0)])
-	if (user.lower() == "dogedtip") and (("%s has" % current_nick).lower() in msg_full):
+	if (user.lower() == "dogedshibebot") and (("%s has" % current_nick).lower() in msg_full):
 		msg_bal = msg_full.split()[2]
-		balance.update([("dogedtip", msg_bal)])
-		if (message_bal.get("dogedtip") == 1):
-			message_bal_context.command("msg %s my current Dogecoindark balance is: '%s' DOGED" % (message_bal_context.get_info("channel"), balance.get("dogedtip")))
-			message_bal.update([("dogedtip", 0)])
+		balance.update([("dogedshibebot", msg_bal)])
+		if (message_bal.get("dogedshibebot") == 1):
+			message_bal_context.command("msg %s my current Dogecoindark balance is: '%s' DOGED" % (message_bal_context.get_info("channel"), balance.get("dogedshibebot")))
+			message_bal.update([("dogedshibebot", 0)])
 	if (user.lower() == "dogewallet") and ("Balance:".lower() in msg_full):
-		msg_bal = msg_full.split()[1]
+		msg_bal = msg_full.split()[2]
 		balance.update([("dogewallet", msg_bal)])
 		if (message_bal.get("dogewallet") == 1):
 			message_bal_context.command("msg %s my current Dogecoin balance on DogeWallet is: '%s' DOGE" % (message_bal_context.get_info("channel"), balance.get("dogewallet")))
 			message_bal.update([("dogewallet", 0)])
+	if (user.lower() == "xpytip") and ("Balance".lower() in msg_full):
+		msg_bal = msg_full.split()[4]
+		balance.update([("xpytip", msg_bal)])
+		if (message_bal.get("xpytip") == 1):
+			message_bal_context.command("msg %s my current Paycoin balance on XPYtip is: '%s' PAYTOSHI" % (message_bal_context.get_info("channel"), balance.get("xpytip")))
+			message_bal.update([("xpytip", 0)])
 	#
 	if (msg_full.split(' '))[0] in data.get("tip_manage_commands"):
 		tip_manage_auth(user, current_context, msg_full)
@@ -615,7 +632,8 @@ def cmd_admins(user, context, msg, words):
 			else:
 				context.command("msg %s Please, %s (account: '%s'), stop \002\00304impersonating\003\002!" % (chan, user, i.account))
 				for admin in admins:
-					context.command("msg %s \002\00304SECURITY ALERT!\003\002 User '%s' on account '%s' is trying to impersonate one of you, Masters!" % (admin, user, i.account))
+					if admin != user.lower():
+						context.command("msg %s \002\00304SECURITY ALERT!\003\002 User '%s' on account '%s' is trying to impersonate one of you, Masters!" % (admin, user, i.account))
 #
 def cmd_api(user, context, cmd, args):
 	chan = context.get_info("channel")
@@ -705,42 +723,61 @@ def check_bal(user, context, cmd, args):
 	check_doger = 1
 	check_pndtip = 1
 	check_dogewallet = 1
-	check_dogedtip = 1
+	check_dogedshibebot = 1
+	check_xpytip = 1
 	if (len(args) > 1):
 		hexchat.command("msg %s Too many args for %s" % (user, cmd))
 	if (len(args) == 1):
 		if (args[0] == "doger"):
 			check_pndtip = 0
 			check_dogewallet = 0
-			check_dogedtip = 0
+			check_dogedshibebot = 0
+			check_xpytip = 0
 		if (args[0] == "pndtip"):
 			check_doger = 0
 			check_dogewallet = 0
-			check_dogedtip = 0
+			check_dogedshibebot = 0
+			check_xpytip = 0
 		if (args[0] == "dogewallet"):
 			check_doger = 0
 			check_pndtip = 0
-			check_dogedtip = 0
+			check_dogedshibebot = 0
+			check_xpytip = 0
 		if (args[0] == "doge"):
 			check_pndtip = 0
-			check_dogedtip = 0
+			check_dogedshibebot = 0
+			check_xpytip = 0
 		if (args[0] == "pnd"):
 			check_doger = 0
 			check_dogewallet = 0
-			check_dogedtip = 0
+			check_dogedshibebot = 0
+			check_xpytip = 0
 		if (args[0] == "doged"):
 			check_doger = 0
 			check_pndtip = 0
 			check_dogewallet = 0
-		if (args[0] == "dogedtip"):
+			check_xpytip = 0
+		if (args[0] == "dogedshibebot"):
 			check_doger = 0
 			check_pndtip = 0
 			check_dogewallet = 0
+			check_xpytip = 0
+		if (args[0] == "xpy"):
+			check_doger = 0
+			check_pndtip = 0
+			check_dogewallet = 0
+			check_dogedshibebot = 0
+		if (args[0] == "xpytip"):
+			check_doger = 0
+			check_pndtip = 0
+			check_dogewallet = 0
+			check_dogedshibebot = 0
 	if (len(args) == 0):
 		check_doger = 1
 		check_pndtip = 1
 		check_dogewallet = 1
-		check_dogedtip = 1
+		check_dogedshibebot = 1
+		check_xpytip = 1
 	if (check_doger == 1):
 		context.command("msg %s balance" % "doger")
 		if (chan != ""):
@@ -756,11 +793,16 @@ def check_bal(user, context, cmd, args):
 		if (chan != ""):
 			message_bal_context = context
 			message_bal.update([("dogewallet", 1)])
-	if (check_dogedtip == 1):
-		context.command("msg %s balance" % "dogedtip")
+	if (check_dogedshibebot == 1):
+		context.command("msg %s balance" % "dogedshibebot")
 		if (chan != ""):
 			message_bal_context = context
-			message_bal.update([("dogedtip", 1)])
+			message_bal.update([("dogedshibebot", 1)])
+	if (check_xpytip == 1):
+		context.command("msg %s balance" % "xpytip")
+		if (chan != ""):
+			message_bal_context = context
+			message_bal.update([("xpytip", 1)])
 #
 # Get ip
 def get_ip(user, chan, cmd, args):
@@ -881,9 +923,16 @@ def api_translate(user, chan, cmd, args):
 				hexchat.command("msg %s There was an error on your request, %s (ERROR %s)." % (chan, user, req.status_code))
 			else:
 				req_xml = req.text
-				x_root = xET.fromstring(req_xml)
-				x_string = x_root.text #.find("string").text
-				current_context.command("me (thanks to Microsoft) is translating from '%s' to '%s' for %s:" % (ms_language.get(l_from), ms_language.get(l_to), user))
+				# version 2.9.11 > 2.9.12
+				x_parser = xET.XMLParser(encoding="UTF-8")
+				x_parser.feed(req_xml.encode("UTF-8"))
+				x_root = x_parser.close()
+				x_string = x_root.text.encode("UTF-8")
+				# Old, but fixed thanks to ChrisWarrick
+				#> x_root = xET.fromstring(req_xml.encode("utf-8"))
+				#> x_string = x_root.text.encode("utf-8") #.find("string").text
+				# Thanking Microsoft:
+				# current_context.command("me (thanks to Microsoft) is translating from '%s' to '%s' for %s:" % (ms_language.get(l_from), ms_language.get(l_to), user))
 				hexchat.command("msg %s %s" % (chan, x_string))
 		else:
 			if (l_from.lower() not in ms_language):
