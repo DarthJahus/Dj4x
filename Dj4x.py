@@ -59,6 +59,9 @@
 # * 2014-12-28 :
 #     (2.9.12)              - Fixed: UTF-8 support for
 #                             *translate and its XML parsing
+# * 2014-12-29 :
+#     (2.10.12)             - Added API with Chuck Norris
+#                             facts (French)
 #--------------------------------------------------------------
 #
 from __future__ import division      # Float division
@@ -106,6 +109,11 @@ import random                        # such randomness
 import xml.etree.ElementTree as xET  # XML parser
 import time                          # Time What Is Time, 
                                      # by Blind Guardian
+# HTML parser for unescape
+if PYTHON == 3:
+	import html.parser as HTMLParser  
+else:
+	import HTMLParser
 #
 #--------------------------------------------------------------
 # CONSTANTES
@@ -176,6 +184,9 @@ help_api = {
 	}, 
 	"ticker": {
 		"descr": ["> %(api)sticker <coin>" % data.get("triggers"), "  \- Gives the ticker in BTC (or SAT) for a coin.", "  \- Gets information from Bter, BITtrex and Mintpal."]
+	}, 
+	"chuck": {
+		"descr": ["> %(api)schuck [tri] [type]" % data.get("triggers"), "  \- Renvoie une Chuck Norris fact à partir de http://chucknorrisfacts.fr/.", "  |- [type] peut être %(bold)stxt%(bold)s (text) ou %(bold)simg%(bold)s (image)." % hexchat_format, "  |- [tri] peut être : %(bold)slast%(bold)s (la plus récente), %(bold)sfirst%(bold)s (la plus ancienne), %(bold)stop%(bold)s (la mieux notée), %(bold)sflop%(bold)s (la moins bien notée), %(bold)smtop%(bold)s (la mieux notée en moyenne), %(bold)smflop%(bold)s (la moins bien notée en moyenne), %(bold)salea%(bold)s (aléatoire)" % hexchat_format, "  \- Les valeurs par défaut sont %(bold)stxt%(bold)s et %(bold)salea%(bold)s." % hexchat_format]
 	}
 }
 #
@@ -637,6 +648,9 @@ def cmd_admins(user, context, msg, words):
 #
 def cmd_api(user, context, cmd, args):
 	chan = context.get_info("channel")
+	# Chuck Norris facts
+	if (cmd.lower() == "chuck"):
+		api_chucknorrisfact(user, context, cmd, args)
 	# ColdCryptos info
 	if (cmd.lower() == "info"):
 		if len(args) != 1:
@@ -1703,6 +1717,59 @@ def api_convert_coin(user, context, cmd, args):
 					_price = "%.4f" % _price
 				_message = "%s: %s [\00313\002%s\002 %s\003]" % (_unit_source, source.get("exchange"), _price, _unit_target)
 				hexchat.command("msg %s %s" % (context.get_info("channel"), _message))
+#
+def api_chucknorrisfact(user, context, cmd, args):
+	args_TRI = ["last", "first", "top", "flop", "mtop", "mflop", "alea"]
+	args_TYPE = ["txt", "img"]
+	TRI = "alea"
+	TYPE = "txt"
+	ERROR = False
+	if len(args) != 0:
+		if (len(args) > 2):
+			context.command("MSG %s Too many arguments for command '%s'" % (context.get_info("channel"), cmd))
+			ERROR = True
+		elif (len(args) == 1):
+			if (args[0].lower() in args_TRI):
+				# args[0] is a TRI
+				TRI = args[0].lower()
+			elif (args[0].lower() in args_TYPE):
+				# args[0] is a TYPE
+				TYPE = args[0].lower()
+			else:
+				context.command("MSG %s Bad argument: %s" % (context.get_info("channel"), args[0]))
+				ERROR = True
+		else:
+			args_bad = []
+			for arg in args:
+				if ((arg.lower() not in args_TRI) and (arg.lower() not in args_TYPE)):
+					args_bad.append(arg)
+			if (len(args_bad) != 0):
+				context.command("MSG %s Bad arguments: %s" % (context.get_info("channel"), ' '.join(args_bad)))
+				ERROR = True
+			else:
+				if (args[0].lower() in args_TRI) and (args[1].lower() in args_TYPE):
+					TRI = args[0].lower()
+					TYPE = args[1].lower()
+				elif (args[0].lower() in args_TYPE) and (args[1].lower() in args_TRI):
+					TYPE = args[0].lower()
+					TRI = args[1].lower()
+				else:
+					# Arguments are from the same set
+					context.command("MSG %s ERROR on '%s': Arguments are from the same type." % (context.get_info("channel"), cmd))
+					ERROR = True
+	if not ERROR:
+		req = requests.get("http://www.chucknorrisfacts.fr/api/get?data=tri:%s;type:%s;nb:1;page:1" % (TRI, TYPE))
+		if (req.status_code != 200):
+			hexchat.command("MSG %s ERROR: The server answered with error '%s'" % (context.get_info("channel"), req.status_code))
+		else:
+			req_json = req.json()[0]
+			FACT_dict = {
+				"id": req_json.get("id"), 
+				"score": ((float(req_json.get("points"))/5)/float(req_json.get("vote")))*10, 
+				"fact": HTMLParser.HTMLParser().unescape(req_json.get("fact"))
+			}
+			FACT_txt = ("#%(id)s [%(score).2f/10] %(fact)s" % FACT_dict)
+			context.command(("MSG %s Chuck Norris fact for %s: %s" % (context.get_info("channel"), user, FACT_txt)).encode("UTF-8"))
 #--------------------------------------------------------------
 # Auto-functions
 #--------------------------------------------------------------
