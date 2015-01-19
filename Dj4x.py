@@ -4,7 +4,7 @@
 #---------------------------#----------------------------------
 # Change log
 # * 2014-07-26 :
-#     (1.0.0)    - first code
+#     (1.0.0)               - first code
 # * 2014-07-27 - 2014-09-30 :
 #     (1.0.1 - 1.19.22)
 # * 2014-10-02 :
@@ -62,6 +62,19 @@
 # * 2014-12-29 :
 #     (2.10.12)             - Added API with Chuck Norris
 #                             facts (French)
+# * 2015-01-02 :
+#     (2.10.13)             - Ajouté +aide
+# * 2015-01-06 :
+#     (2.11.13)             - Ajout de la fonction de calcul
+#                             à *convert
+# * 2015-01-13 :
+#     (2.11.14)             - Adaptation de autotip à pndtip,
+#                             Tip sur le canal, non en privé.
+# * 2015-01-16 :
+#     (2.12.14)             - LOCAL (True|False) support
+# * 2015-01-17 :
+#     (2.13.14)             - Bitly API support
+#                             (*bitly | *short)
 #--------------------------------------------------------------
 #
 from __future__ import division      # Float division
@@ -72,7 +85,6 @@ LOCAL = False # True: no freenode support, no tipping
               #       (for local use on local server)
 			  # False: on freenode, support of tipbots,
 			  #        autotips, rains, etc.
-			  # [unimplemented yet]
 # DATA
 import json
 def load_file_json(file_name):
@@ -114,6 +126,7 @@ if PYTHON == 3:
 	import html.parser as HTMLParser  
 else:
 	import HTMLParser
+import urllib                        # URL parser
 #
 #--------------------------------------------------------------
 # CONSTANTES
@@ -183,10 +196,13 @@ help_api = {
 		"descr": ["> %(api)stranslate <from> <to> <text>" % data.get("triggers"), "  |- Translates <text> from a language to another using Microsoft Translation systems.", "  \- For language codes, see Translator Language Codes on MSDN: http://msdn.microsoft.com/en-us/library/hh456380.aspx"]
 	}, 
 	"ticker": {
-		"descr": ["> %(api)sticker <coin>" % data.get("triggers"), "  \- Gives the ticker in BTC (or SAT) for a coin.", "  \- Gets information from Bter, BITtrex and Mintpal."]
+		"descr": ["> %(api)sticker <coin>" % data.get("triggers"), "  |- Gives the ticker in BTC (or SAT) for a coin.", "  \- Gets information from Bter, BITtrex and Mintpal."]
 	}, 
 	"chuck": {
-		"descr": ["> %(api)schuck [tri] [type]" % data.get("triggers"), "  \- Renvoie une Chuck Norris fact à partir de http://chucknorrisfacts.fr/.", "  |- [type] peut être %(bold)stxt%(bold)s (text) ou %(bold)simg%(bold)s (image)." % hexchat_format, "  |- [tri] peut être : %(bold)slast%(bold)s (la plus récente), %(bold)sfirst%(bold)s (la plus ancienne), %(bold)stop%(bold)s (la mieux notée), %(bold)sflop%(bold)s (la moins bien notée), %(bold)smtop%(bold)s (la mieux notée en moyenne), %(bold)smflop%(bold)s (la moins bien notée en moyenne), %(bold)salea%(bold)s (aléatoire)" % hexchat_format, "  \- Les valeurs par défaut sont %(bold)stxt%(bold)s et %(bold)salea%(bold)s." % hexchat_format]
+		"descr": ["> %(api)schuck [tri] [type]" % data.get("triggers"), "  |- Renvoie une Chuck Norris fact à partir de http://chucknorrisfacts.fr/.", "  |- [type] peut être %(bold)stxt%(bold)s (text) ou %(bold)simg%(bold)s (image)." % hexchat_format, "  |- [tri] peut être : %(bold)slast%(bold)s (la plus récente), %(bold)sfirst%(bold)s (la plus ancienne), %(bold)stop%(bold)s (la mieux notée), %(bold)sflop%(bold)s (la moins bien notée), %(bold)smtop%(bold)s (la mieux notée en moyenne), %(bold)smflop%(bold)s (la moins bien notée en moyenne), %(bold)salea%(bold)s (aléatoire)" % hexchat_format, "  \- Les valeurs par défaut sont %(bold)stxt%(bold)s et %(bold)salea%(bold)s." % hexchat_format]
+	}, 
+	"bitly": {
+		"descr": ["> %(api)sbitly <longURL>" % data.get("triggers"), "  \- Shorten a link from Bitly"]
 	}
 }
 #
@@ -205,6 +221,10 @@ get_msg = {
 	"diablo": {
 		"words": data.get("diablo"), 
 		"descr": ["> %(users)sdiablo" % data.get("triggers"), "  \- Ever wanted to know how to make a diablo?"]
+	}, 
+	"aide": {
+		"words": data.get("irchelp-fr") % hexchat_format, 
+		"descr": ["> %(users)saide" % data.get("triggers"), "  \- Affiche le lien d'aide IRC : https://gist.github.com/AhmedDjoudi/bbbad10fad9e52eb22cc"]
 	}
 }
 get_action = {
@@ -469,8 +489,11 @@ def auto_tip(user, context, cmd):
 					margin = 0
 				if (int(_bal) > max + margin):
 					tip = int(random.uniform(min, max)) + 1
-					context.command("msg %s tip %s %s" % (_bot, user, tip))
-					context.command("me tipped %s %i %s, yay!!! [random tip | overall proba: %s%% | tip me to keep going!]" % (user, tip, _coin, _proba*len(tip_channels)))
+					if _bot in [tip_channels.get("#pandacoinpnd")[3]]:
+						context.command("msg %s !tip %s %s %s, \002yay!!!\002 [random tip | overall proba: %s%% | tip me to keep going!]" % (context.get_info("channel"), user, tip, _coin, _proba*len(tip_channels)))
+					else:
+						context.command("msg %s tip %s %s" % (_bot, user, tip))
+						context.command("me tipped %s %i %s, yay!!! [random tip | overall proba: %s%% | tip me to keep going!]" % (user, tip, _coin, _proba*len(tip_channels)))
 					# update balance
 					check_bal("Dj4x", None, "checkbal", [_bot])
 				else:
@@ -497,7 +520,8 @@ timer_first_timout = data.get("timer_first_timout")
 def _timout(userdata):
 	global timer_first
 	ident()
-	check_bal("Dj4x", None, "checkbal", [])
+	if not LOCAL:
+		check_bal("Dj4x", None, "checkbal", [])
 	# stops the first timer
 	if timer_first is not None:
 		hexchat.unhook(timer_first)
@@ -648,6 +672,9 @@ def cmd_admins(user, context, msg, words):
 #
 def cmd_api(user, context, cmd, args):
 	chan = context.get_info("channel")
+	# Bitly shortener
+	if (cmd.lower() in ["bitly", "short"]):
+		api_bitly(user, context, cmd, args)
 	# Chuck Norris facts
 	if (cmd.lower() == "chuck"):
 		api_chucknorrisfact(user, context, cmd, args)
@@ -1693,12 +1720,23 @@ def api_ticker(user, context, cmd, args):
 				hexchat.command("msg %s %s" % (context.get_info("channel"), _message))
 #
 def api_convert_coin(user, context, cmd, args):
-	if len(args) != 2:
-		context.command("msg %s ERROR: not enough or too many arguments for 'convert'." % context.get_info("channel"))
+	if (len(args) > 3 or len(args) < 2):
+		context.command("msg %s ERROR: Not enough or too many arguments for '%s'." % (context.get_info("channel"), cmd))
 	else:
+		value = 1.
 		sources = []
+		if (len(args) == 3):
+			#try:
+			value = float(args[0])
+			print("value = %.8f" % value)
+			#except:
+			#	print("Error from api_convert_coin() while trying to get the value of args[0] (args[0]==%s)" % args[0])
 		try:
-			sources.append(api_cryptonator(args[0], args[1]))
+			if len(args) == 3:
+				sources.append(api_cryptonator(args[1], args[2]))
+			else:
+				# len(args) == 2
+				sources.append(api_cryptonator(args[0], args[1]))
 		except:
 			print("Error from api_convert_coin() while trying to add: Cryptonator")
 		# Getting info from source
@@ -1707,9 +1745,21 @@ def api_convert_coin(user, context, cmd, args):
 				print(source.get("error"))
 			else:
 				_message = ""
-				_price = source.get("result").get("last")
-				_unit_source = args[0].upper()
-				_unit_target = args[1].upper()
+				_price = float(source.get("result").get("last"))*value
+				if len(args) == 3:
+					_unit_source = args[1].upper()
+					if (_unit_source.lower() in ["btc", "ltc"]) and (value < 0.0001):
+						value = "%i" % int(value * 1e+8)
+						_unit_source = "%s %s" % (value, units.get(_unit_source.lower()).get("submultiple"))
+					else:
+						if value < 0.0001:
+							_unit_source = "%.8f %s" % (value, args[1].upper())
+						else:
+							_unit_source = "%.4f %s" % (value, args[1].upper())
+					_unit_target = args[2].upper()
+				else:
+					_unit_source = args[0].upper()
+					_unit_target = args[1].upper()
 				if _unit_target.lower() in ["btc", "ltc"] and (_price < 0.0001):
 					_unit_target = units.get(_unit_target.lower()).get("submultiple")
 					_price = "%i" % int(_price * 1e+8)
@@ -1770,8 +1820,31 @@ def api_chucknorrisfact(user, context, cmd, args):
 			}
 			FACT_txt = ("#%(id)s [%(score).2f/10] %(fact)s" % FACT_dict)
 			context.command(("MSG %s Chuck Norris fact for %s: %s" % (context.get_info("channel"), user, FACT_txt)).encode("UTF-8"))
+#
+def api_bitly(user, context, cmd, args):
+	bitly_params = data.get("bitly_params")
+	bitly_username = bitly_params.get("bitly_username")
+	bitly_apikey = bitly_params.get("bitly_apikey")
+	if len(args) != 1:
+		context.command("MSG %s ERROR: Not enough or too many arguments for command '%s'." % (context.get_info("channel"), cmd))
+	else:
+		longURL = urllib.quote_plus(args[0])
+		print("api_bitly: longURL to shorten: %s" % longURL)
+		bitly_api = "https://api-ssl.bitly.com/v3/shorten?login=%s&apiKey=%s&longUrl=%s&format=%s"
+		req = requests.get(bitly_api % (bitly_username, bitly_apikey, longURL, "json"))
+		if req.status_code != 200:
+			context.command("MSG %s ERROR: Sorry, %s, Bitly answered with error #%s" % (context.get_info("channel"), user, req.status_code))
+		else:
+			req_json = req.json()
+			if req_json.get("status_code") != 200:
+				context.command("MSG %s ERROR: Sorry, %s, Bitly understood the request but answered with error #%s: '%s'" % (context.get_info("channel"), user, req_json.get("status_code"), req_json.get("status_txt")))
+			else:
+				req_data = req_json.get("data")
+				context.command("ME \017shortened a link from \00307Bitly\003 for %s: \00302%s\003" % (user, req_data.get("url")))
+
 #--------------------------------------------------------------
 # Auto-functions
 #--------------------------------------------------------------
 # Checks the balance at reload (or load if already connected with NickServ)
-check_bal(__module_name__, None, "checkbal", [])
+if not LOCAL:
+	check_bal(__module_name__, None, "checkbal", [])
