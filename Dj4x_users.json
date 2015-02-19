@@ -1,13 +1,18 @@
 {
-	"user1": {
-		"nicks": ["nick1", "nick2"]
-	},
-	"user2": {
-		"nicks": ["nick"], 
+	"such_user": {
+		"nicks": ["such_user", "suchuser"], 
 		"data": {
-			"pandapool": "DXXX",
-			"addie.cc": "addie", 
-			"hashfaster": "sUcHApIkEy"
+			"pandapool": "Pxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+			"addie.cc": "such_user", 
+			"hashfaster": "such_api_key"
+		}
+	}, 
+	"user2": {
+		"nicks": ["user2", "user2_", "_user2"], 
+		"data": {
+			"pandapool": "Dxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", 
+			"addie.cc": "user2", 
+			"ltcrabbit": "such_secret_api_keu"
 		}
 	}, 
 	"dj4x": {

@@ -75,6 +75,26 @@
 # * 2015-01-17 :
 #     (2.13.14)             - Bitly API support
 #                             (*bitly | *short)
+# * 2015-02-01 :
+#     (2.13.15)             - Minor change to LOCAL const
+#                             and _timeout_reminder()
+# * 2015-02-13 :
+#     (2.13.16)             - Importing urllib.parse for Py3
+#     (2.13.17)             - Adding "owner" params
+#                             for *bitly
+# * 2015-02-14 :
+#     (2.13.18)             - Ajout de is_auth() pour
+#                             une utilisation extérieure à
+#                             cmd_admins()
+#     (2.14.18)             - Remaniement de is_auth()
+#                             et création de auth_users
+#                             pour la gestion des
+#                             groupes d'utilisateurs
+# * 2015-02-16 :
+#     (2.15.18)             - Ajout de api_ticker_custom()
+# * 2015-02-19 :
+#     (2.15.19)             - Ajout de LazyCoinsRainBot (doge)
+#                             à auto-tip
 #--------------------------------------------------------------
 #
 from __future__ import division      # Float division
@@ -123,10 +143,12 @@ import time                          # Time What Is Time,
                                      # by Blind Guardian
 # HTML parser for unescape
 if PYTHON == 3:
-	import html.parser as HTMLParser  
+	import html.parser as HTMLParser
+	import urllib.parse as urllib_parse
 else:
-	import HTMLParser
-import urllib                        # URL parser
+	import HTMLParser                # HTML parser
+	import urllib as urllib_parse    # URL parser
+
 #
 #--------------------------------------------------------------
 # CONSTANTES
@@ -285,8 +307,22 @@ help = {
 # VARIABLES
 #--------------------------------------------------------------
 DOGE_BLOCK = 31250
-balance = {"doger": "0", "pndtip": "0", "dogewallet": "0", "dogedshibebot": "0", "xpytip": "0"}
-message_bal = {"doger": 0, "pndtip": 0, "dogewallet": 0, "dogedshibebot": 0, "xpytip": 0}
+balance = {
+	"doger": "0", 
+	"pndtip": "0", 
+	"dogewallet": "0", 
+	"dogedshibebot": "0", 
+	"xpytip": "0", 
+	"lazycoinsrainbot": "0"
+}
+message_bal = {
+	"doger": 0, 
+	"pndtip": 0, 
+	"dogewallet": 0, 
+	"dogedshibebot": 0, 
+	"xpytip": 0, 
+	"lazycoinsrainbot": 0
+}
 message_bal_context = None
 ms_token = ""
 ms_token_timout = 0
@@ -301,8 +337,8 @@ del bot
 #--------------------------------------------------------------
 #
 # MODULE LAUNCH MESSAGE
-admins = data.get("admins")
-for admin in admins:
+auth_users = data.get("auth_users")
+for admin in auth_users.get("admins"):
 	hexchat.command("msg %s %s started" % (admin, __module_name__))
 #
 # IDENTIFICATION WITH FREENODE
@@ -340,13 +376,13 @@ def trig_chan(word, word_eol, userdata):
 	auto_tip(user, current_context, words)
 	#
 	triggers = data.get("triggers")
-	if (trig == triggers.get("admins")) and (user.lower() in admins):
+	if (trig == triggers.get("admins")) and (user.lower() in auth_users.get("admins")):
 		cmd_admins(user, current_context, msg_full, words)
 	if (trig == triggers.get("users")):
 		cmd_users(user, current_context, msg_full, words)
 	if (trig == triggers.get("api")):
 		cmd_api(user, current_context, words[0], words[1:])
-	if (trig == triggers.get("susers_sp")) and (user.lower() in sp_users):
+	if (trig == triggers.get("susers_sp")) and (user.lower() in auth_users.get("users_sp")):
 		cmd_users_sp(user, current_context, words[0], words[1:])
 	if (trig == triggers.get("help")) and (words[0].lower() == "help"):
 		get_help(user, current_context, words[0], words[1:])
@@ -438,6 +474,12 @@ def trig_pm(word, word_eol, userdata):
 		if (message_bal.get("xpytip") == 1):
 			message_bal_context.command("msg %s my current Paycoin balance on XPYtip is: '%s' PAYTOSHI" % (message_bal_context.get_info("channel"), balance.get("xpytip")))
 			message_bal.update([("xpytip", 0)])
+	if (user.lower() == "lazycoinsrainbot") and (("%s has" % current_nick).lower() in msg_full):
+		msg_bal = msg_full.split()[2]
+		balance.update([("lazycoinsrainbot", msg_bal)])
+		if (message_bal.get("lazycoinsrainbot") == 1):
+			message_bal_context.command("msg %s my current LazyCoinsRainBot balance is: '%s' DOGE" % (message_bal_context.get_info("channel"), balance.get("lazycoinsrainbot")))
+			message_bal.update([("lazycoinsrainbot", 0)])
 	#
 	if (msg_full.split(' '))[0] in data.get("tip_manage_commands"):
 		tip_manage_auth(user, current_context, msg_full)
@@ -504,7 +546,7 @@ def auto_tip(user, context, cmd):
 # UNLOAD
 #--------------------------------------------------------------
 def unload_me(userdata):
-	for admin in admins:
+	for admin in auth_users.get("admins"):
 		hexchat.command("msg %s %s unloaded" % (admin, __module_name__))
 	return hexchat.EAT_NONE
 hexchat.hook_unload(unload_me)
@@ -559,11 +601,12 @@ del timer_first_timout
 # other timers
 reminders = data.get("reminders")
 for reminder in reminders:
-	def _timeout_reminder(userdata, reminder=reminder):
-		for _channel in reminders.get(reminder).get("channels"):
-			hexchat.command("msg %s %s" % (_channel, reminders.get(reminder).get("message") % hexchat_format))
-		return 1
-	hexchat.hook_timer(reminders.get(reminder).get("timeout")*1000, _timeout_reminder)
+	if (reminders.get(reminder).get("local") == LOCAL):
+		def _timeout_reminder(userdata, reminder=reminder):
+			for _channel in reminders.get(reminder).get("channels"):
+				hexchat.command("msg %s %s" % (_channel, reminders.get(reminder).get("message") % hexchat_format))
+			return 1
+		hexchat.hook_timer(reminders.get(reminder).get("timeout")*1000, _timeout_reminder)
 	#reminders.update(
 	#	[
 	#		(reminder, {
@@ -580,6 +623,7 @@ for reminder in reminders:
 # Hubs
 #--------------------------------------------------------------
 def cmd_users_sp(user, context, cmd, args):
+	user_type = "users_sp"
 	global waiting_msg
 	chan = context.get_info("channel")
 	# Waiting message
@@ -592,34 +636,37 @@ def cmd_users_sp(user, context, cmd, args):
 	#		waiting_msg = "Waiting message from %s: %s" % (user, ' '.join(args[0:]))
 	# Get channels
 	_channels = user_data.get("Jahus").get("channels")
-	if (cmd.lower() == "channels") and (user in admins):
-		if (len(args) > 2):
-			hexchat.command("msg %s Too many args for %s command." % (user, cmd))
-		if (len(args) == 2):
-			if args[0].lower() not in _channels:
-				hexchat.command("msg %s Can't find the server %s in the database." % (user, args[0]))
-			else:
-				if args[1].lower() not in ["join", "part"]:
-					hexchat.command("msg %s Bad argument '%s' for %s command." % (user, args[1], cmd))
+	if is_auth(user, context, users_type):
+		if (cmd.lower() == "channels") and (user in auth_users.get("admins")):
+			if (len(args) > 2):
+				hexchat.command("msg %s Too many args for %s command." % (user, cmd))
+			if (len(args) == 2):
+				if args[0].lower() not in _channels:
+					hexchat.command("msg %s Can't find the server %s in the database." % (user, args[0]))
 				else:
+					if args[1].lower() not in ["join", "part"]:
+						hexchat.command("msg %s Bad argument '%s' for %s command." % (user, args[1], cmd))
+					else:
+						for channel in _channels.get(args[0].lower()):
+							hexchat.command("msg %s %%%s %s" % (chan, args[1], channel))
+			if (len(args) == 1):
+				if args[0].lower() not in _channels:
+					hexchat.command("msg %s Can't find the server %s in the database." % (user, args[0]))
+				else:
+					hexchat.command("msg %s Channels found for %s on database:" % (chan, args[0]))
 					for channel in _channels.get(args[0].lower()):
-						hexchat.command("msg %s %%%s %s" % (chan, args[1], channel))
-		if (len(args) == 1):
-			if args[0].lower() not in _channels:
-				hexchat.command("msg %s Can't find the server %s in the database." % (user, args[0]))
-			else:
-				hexchat.command("msg %s Channels found for %s on database:" % (chan, args[0]))
-				for channel in _channels.get(args[0].lower()):
-					hexchat.command("msg %s - %s" % (chan, channel))
-		if (len(args) == 0):
-			server_str = context.get_info("server")
-			server_strs = server_str.split(".")
-			server = server_strs[1]
-			for channel in _channels.get(server):
-					hexchat.command("msg %s - %s" % (chan, channel))
-	# Get ip
-	if (cmd.lower() == "ip"):
-		get_ip(user, chan, cmd, args)
+						hexchat.command("msg %s - %s" % (chan, channel))
+			if (len(args) == 0):
+				server_str = context.get_info("server")
+				server_strs = server_str.split(".")
+				server = server_strs[1]
+				for channel in _channels.get(server):
+						hexchat.command("msg %s - %s" % (chan, channel))
+		# Get ip
+		if (cmd.lower() == "ip"):
+			get_ip(user, chan, cmd, args)
+	else:
+		print("*** cmd_users_sp() authentification failed. Handeled by is_auth(%s)" % user_type)
 #
 def cmd_users(user, context, msg, words):
 	chan = context.get_info("channel")
@@ -651,24 +698,34 @@ def cmd_users(user, context, msg, words):
 		else:
 			context.command("me remembers %i active users." % len(rain_users))
 #
+def is_auth(user, context, user_type):
+	chan = context.get_info("channel")
+	cc_users = context.get_list("users")
+	for i in cc_users:
+		if (i.nick.lower() == user.lower()):
+			if i.account.lower() in auth_users.get(user_type):
+				return True
+			else:
+				context.command("msg %s Please, %s (account: '%s'), stop \002\00304impersonating\003\002!" % (chan, user, i.account))
+				for admin in auth_users.get(user_type):
+					if admin != user.lower():
+						context.command("msg %s \002\00304SECURITY ALERT!\003\002 User '%s' on account '%s' is trying to impersonate one of you, Masters!" % (admin, user, i.account))
+				return False
+#
 def cmd_admins(user, context, msg, words):
+	user_type = "admins"
 	chan = context.get_info("channel")
 	cmd = words[0]
 	args = words[1:]
 	cc_users = context.get_list("users")
-	for i in cc_users:
-		if (i.nick.lower() == user.lower()):
-			if i.account.lower() in admins:
-				if (cmd.lower() == "do"):
-					if (len(args) < 2):
-						context.command("msg %s ERROR: Not enough arguments to make a command." % chan)
-					else:
-						do_cmd(user, context, args[0], args[1:])
+	if is_auth(user, context, user_type):
+		if (cmd.lower() == "do"):
+			if (len(args) < 2):
+				context.command("msg %s ERROR: Not enough arguments to make a command." % chan)
 			else:
-				context.command("msg %s Please, %s (account: '%s'), stop \002\00304impersonating\003\002!" % (chan, user, i.account))
-				for admin in admins:
-					if admin != user.lower():
-						context.command("msg %s \002\00304SECURITY ALERT!\003\002 User '%s' on account '%s' is trying to impersonate one of you, Masters!" % (admin, user, i.account))
+				do_cmd(user, context, args[0], args[1:])
+	else:
+		print("*** cmd_admins(): Admin command fail. Handeled by is_auth(%s)" % user_type)
 #
 def cmd_api(user, context, cmd, args):
 	chan = context.get_info("channel")
@@ -761,64 +818,82 @@ def check_bal(user, context, cmd, args):
 	else:
 		chan = ""
 		context = hexchat.get_context()
+	# TO-DO: AUTOMATE THIS PROCEDURE
+	#        Seriously, it's getting hilarious!
 	check_doger = 1
 	check_pndtip = 1
 	check_dogewallet = 1
 	check_dogedshibebot = 1
 	check_xpytip = 1
+	check_lazycoinsrainbot = 1
 	if (len(args) > 1):
 		hexchat.command("msg %s Too many args for %s" % (user, cmd))
 	if (len(args) == 1):
-		if (args[0] == "doger"):
+		if (args[0].lower() == "doger"):
 			check_pndtip = 0
 			check_dogewallet = 0
 			check_dogedshibebot = 0
 			check_xpytip = 0
-		if (args[0] == "pndtip"):
+			check_lazycoinsrainbot = 0
+		if (args[0].lower() == "pndtip"):
 			check_doger = 0
 			check_dogewallet = 0
 			check_dogedshibebot = 0
 			check_xpytip = 0
-		if (args[0] == "dogewallet"):
+			check_lazycoinsrainbot = 0
+		if (args[0].lower() == "dogewallet"):
 			check_doger = 0
 			check_pndtip = 0
 			check_dogedshibebot = 0
 			check_xpytip = 0
-		if (args[0] == "doge"):
+			check_lazycoinsrainbot = 0
+		if (args[0].lower() == "doge"):
 			check_pndtip = 0
 			check_dogedshibebot = 0
 			check_xpytip = 0
-		if (args[0] == "pnd"):
+		if (args[0].lower() == "pnd"):
 			check_doger = 0
 			check_dogewallet = 0
 			check_dogedshibebot = 0
 			check_xpytip = 0
-		if (args[0] == "doged"):
-			check_doger = 0
-			check_pndtip = 0
-			check_dogewallet = 0
-			check_xpytip = 0
-		if (args[0] == "dogedshibebot"):
+			check_lazycoinsrainbot = 0
+		if (args[0].lower() == "doged"):
 			check_doger = 0
 			check_pndtip = 0
 			check_dogewallet = 0
 			check_xpytip = 0
-		if (args[0] == "xpy"):
+			check_lazycoinsrainbot = 0
+		if (args[0].lower() == "dogedshibebot"):
+			check_doger = 0
+			check_pndtip = 0
+			check_dogewallet = 0
+			check_xpytip = 0
+			check_lazycoinsrainbot = 0
+		if (args[0].lower() == "xpy"):
 			check_doger = 0
 			check_pndtip = 0
 			check_dogewallet = 0
 			check_dogedshibebot = 0
-		if (args[0] == "xpytip"):
+			check_lazycoinsrainbot = 0
+		if (args[0].lower() == "xpytip"):
 			check_doger = 0
 			check_pndtip = 0
 			check_dogewallet = 0
 			check_dogedshibebot = 0
+			check_lazycoinsrainbot = 0
+		if (args[0].lower() == "lazycoinsrainbot"):
+			check_doger = 0
+			check_pndtip = 0
+			check_dogewallet = 0
+			check_dogedshibebot = 0
+			check_xpytip = 0
 	if (len(args) == 0):
 		check_doger = 1
 		check_pndtip = 1
 		check_dogewallet = 1
 		check_dogedshibebot = 1
 		check_xpytip = 1
+		check_lazycoinsrainbot = 1
 	if (check_doger == 1):
 		context.command("msg %s balance" % "doger")
 		if (chan != ""):
@@ -844,6 +919,11 @@ def check_bal(user, context, cmd, args):
 		if (chan != ""):
 			message_bal_context = context
 			message_bal.update([("xpytip", 1)])
+	if (check_lazycoinsrainbot == 1):
+		context.command("msg %s balance" % "lazycoinsrainbot")
+		if (chan != ""):
+			message_bal_context = context
+			message_bal.update([("lazycoinsrainbot", 1)])
 #
 # Get ip
 def get_ip(user, chan, cmd, args):
@@ -1669,6 +1749,24 @@ def api_cryptonator(coin_0, coin_1):
 	except:
 		return {"success": False, "error": "Error from api_cryptonator()"}
 #
+def api_ticker_custom(coin_0, coin_1):
+	_exchange = "%(bold)sCUSTOM TICKER%(bold)s " % hexchat_format
+	_pair = "%s_%s" % (coin_0.lower(), coin_1.lower())
+	tickers_custom = data.get("ticker_custom")
+	if _pair in tickers_custom:
+		_pair_tickers = data.get("ticker_custom").get(_pair)
+		_last = _pair_tickers.get("last")
+		if "buy" in _pair_tickers:
+			_buy = _pair_tickers.get("buy")
+		else:
+			_buy = _last
+		if "sell" in _pair_tickers:
+			_sell = _pair_tickers.get("sell")
+		else:
+			_sell = _last
+		return {"success": True, "result": {"last": _last, "sell": _sell, "buy": _buy}, "exchange": _exchange, "pair": [coin_0.upper(), coin_1.upper()]}
+	else:
+		return {"success": False, "error": ("Error from data.get(\"ticker_custom\"): %s" % "Pair not found.")}
 def api_ticker(user, context, cmd, args):
 	if len(args) != 1:
 		context.command("msg %s ERROR: not enough or too many arguments for 'ticker'." % context.get_info("channel"))
@@ -1691,6 +1789,10 @@ def api_ticker(user, context, cmd, args):
 			tickers.append(api_mintpal(args[0], "btc"))
 		except:
 			print("Error from api_ticker() while trying to add: Mintpal")
+		try:
+			tickers.append(api_ticker_custom(args[0], "btc"))
+		except:
+			print("Error from api_ticker() while trying to add: Ticker_Custom")
 		#try:
 		#	tickers.append(api_cryptonator(args[0], "btc"))
 		#except:
@@ -1739,6 +1841,14 @@ def api_convert_coin(user, context, cmd, args):
 				sources.append(api_cryptonator(args[0], args[1]))
 		except:
 			print("Error from api_convert_coin() while trying to add: Cryptonator")
+		try:
+			if len(args) == 3:
+				sources.append(api_ticker_custom(args[1], args[2]))
+			else:
+				# len(args) == 2
+				sources.append(api_ticker_custom(args[0], args[1]))
+		except:
+			print("Error from api_convert_coin() while trying to add: Ticker_Custom")
 		# Getting info from source
 		for source in sources:
 			if source.get("success") != True:
@@ -1822,13 +1932,16 @@ def api_chucknorrisfact(user, context, cmd, args):
 			context.command(("MSG %s Chuck Norris fact for %s: %s" % (context.get_info("channel"), user, FACT_txt)).encode("UTF-8"))
 #
 def api_bitly(user, context, cmd, args):
-	bitly_params = data.get("bitly_params")
+	if is_auth(user, context, "owner"):
+		bitly_params = data.get("bitly_params_owner")
+	else:
+		bitly_params = data.get("bitly_params")
 	bitly_username = bitly_params.get("bitly_username")
 	bitly_apikey = bitly_params.get("bitly_apikey")
 	if len(args) != 1:
 		context.command("MSG %s ERROR: Not enough or too many arguments for command '%s'." % (context.get_info("channel"), cmd))
 	else:
-		longURL = urllib.quote_plus(args[0])
+		longURL = urllib_parse.quote_plus(args[0])
 		print("api_bitly: longURL to shorten: %s" % longURL)
 		bitly_api = "https://api-ssl.bitly.com/v3/shorten?login=%s&apiKey=%s&longUrl=%s&format=%s"
 		req = requests.get(bitly_api % (bitly_username, bitly_apikey, longURL, "json"))
@@ -1841,7 +1954,6 @@ def api_bitly(user, context, cmd, args):
 			else:
 				req_data = req_json.get("data")
 				context.command("ME \017shortened a link from \00307Bitly\003 for %s: \00302%s\003" % (user, req_data.get("url")))
-
 #--------------------------------------------------------------
 # Auto-functions
 #--------------------------------------------------------------
