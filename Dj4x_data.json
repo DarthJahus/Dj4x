@@ -1,7 +1,7 @@
 {
 	"bot": {
 		"name": "Dj4x", 
-		"version": "2.15.19", 
+		"version": "3.21.20", 
 		"description": "Dj4x bot, by Jahus", 
 		"version_info": {
 			"name": "Bonne Jenet", 
@@ -24,9 +24,11 @@
 		"api": "*", 
 		"help": "+"
 	}, 
+	"triggers_all": ["%", "#", "+", "*"],
 	"auth_users": {
 		"owner": ["jahus", "jahus_", "_jahus"], 
-		"admins": ["jahus", "jahus_", "_jahus", "atmalik", "moon", "itsluke", "eclipse"], 
+		"admins": ["jahus", "jahus_", "_jahus"], 
+		"admins_old": [], 
 		"users_sp": ["jahus", "jahus_", "_jahus", "sayura", "sayura_", "sayura__"]
 	}, 
 	"irchelp-fr": "%(bold)s%(colour)s03Besoin d'aide?%(bold)s %(colour)s02http://j.mp/IRC-crypto-fr%(colour)s", 
@@ -192,5 +194,13 @@
 		"tomate_carotte": {
 			"last": 0.5
 		}
+	},
+	"telegram_params": {
+		"token": "telegram:rules",
+		"channels": {
+			"#dogecoinfrance": -18430680
+		},
+		"timeout": 10,
+		"timeout_first": 60
 	}
 }
