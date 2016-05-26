@@ -2,122 +2,6 @@
 #---------------------------#
 # Dj4x | Jahus | 2014-07-26 #
 #---------------------------#----------------------------------
-# Change log
-# * 2014-07-26 :
-#     (1.0.0)               - first code
-# * 2014-07-27 - 2014-09-30 :
-#     (1.0.1 - 1.19.22)
-# * 2014-10-02 :
-#     (2.0.0 Bonne Jenet)   - Réécriture du code
-#                           - Création des fichiers .json
-#                           - Débugging
-# * 2014-10-02 - 2014-10-03 :
-#     (2.1.0 Bonne Jenet)   - Multiple reminders support
-# * 2014-10-03 :
-#     (2.1.1)               - Petite correction de foramt %
-#     (2.2.1)               - Dynamisation de auto_tip
-#                             et check_bal pour supporter
-#                             plusieurs bots
-# * 2014-10-04 :
-#     (2.2.2)               - Corrections mineures
-# * 2014-10-05 :
-#     (2.3.2)               - Ajout de +donate
-# * 2014-10-08 :
-#     (2.3.3)               - Portage Python 2.7 / Linux
-# * 2014-10-09 :
-#     (2.3.4)               - Compatibilit? 2.7 / Linux
-# * 2014-10-10 :
-#     (2.3.5)               - Fixed a problem with tip timeout
-# * 2014-10-15 :
-#     (2.4.5)               - Added BITtrex api
-#     (2.5.5)               - Unified the ticker APIs
-# * 2014-10-16 :
-#     (2.5.6)               - Minor fix on *ticker
-# * 2014-10-22 :
-#     (2.5.7)               - Minor fix on handling tips
-#                             channels
-# * 2014-10-23 :
-#     (2.5.8)               - Arranged an oversight that
-#                             prevented the bot from tipping
-#                             a received tip even after a
-#                             timeout or a keep <hash>
-# * 2014-10-30 :
-#     (2.5.9)               - Added more NOTICE messages
-#                             to make the bot less spammy
-#                             (addie.cc, ltcrabbit, help)
-#     (2.6.9)               - Added Cryptonator API
-#     (2.7.9)               - Added *convert command
-#     (2.8.9)               - Added DOGED to AutoTip
-# * 2014-11-09 :
-#     (2.8.10)              - Fixed float division
-# * 2014-11-28 :
-#     (2.9.10)              - Ajouté : système de sécurité
-#                             pour vérifier l'identité des
-#                             administrateurs
-# * 2014-12-19 :
-#     (2.9.11)              - Added XPY to AutoTip
-# * 2014-12-28 :
-#     (2.9.12)              - Fixed: UTF-8 support for
-#                             *translate and its XML parsing
-# * 2014-12-29 :
-#     (2.10.12)             - Added API with Chuck Norris
-#                             facts (French)
-# * 2015-01-02 :
-#     (2.10.13)             - Ajouté +aide
-# * 2015-01-06 :
-#     (2.11.13)             - Ajout de la fonction de calcul
-#                             à *convert
-# * 2015-01-13 :
-#     (2.11.14)             - Adaptation de autotip à pndtip,
-#                             Tip sur le canal, non en privé.
-# * 2015-01-16 :
-#     (2.12.14)             - LOCAL (True|False) support
-# * 2015-01-17 :
-#     (2.13.14)             - Bitly API support
-#                             (*bitly | *short)
-# * 2015-02-01 :
-#     (2.13.15)             - Minor change to LOCAL const
-#                             and _timeout_reminder()
-# * 2015-02-13 :
-#     (2.13.16)             - Importing urllib.parse for Py3
-#     (2.13.17)             - Adding "owner" params
-#                             for *bitly
-# * 2015-02-14 :
-#     (2.13.18)             - Ajout de is_auth() pour
-#                             une utilisation extérieure à
-#                             cmd_admins()
-#     (2.14.18)             - Remaniement de is_auth()
-#                             et création de auth_users
-#                             pour la gestion des
-#                             groupes d'utilisateurs
-# * 2015-02-16 :
-#     (2.15.18)             - Ajout de api_ticker_custom()
-# * 2015-02-19 :
-#     (2.15.19)             - Ajout de LazyCoinsRainBot (doge)
-#                             à auto-tip
-# * 2015-03-14 :
-#     (2.15.20)             - Version-dependent UTF-8 usage
-#                             in api_chucknorrisfact()
-# * 2015-08-08 :
-#     (3.15.20)             - Ajout de l'interface Telegram
-# * 2015-08-09 :
-#     (3.16.20)             - Réglages de l'interface Telegram
-# * 2015-08-10 :
-#     (3.17.20)             - Ajout de la commande Telegram
-#                             /enligne pour avoir la liste
-#                             des utilisateurs présents sur
-#                             le canal IRC.
-# * 2015-08-11 :
-#     (3.18.20)             - Ajout d'un filtre anti-flood
-#                             pour les messages Telegram > IRC
-#     (3.19.20)             - Changements de compatibilité
-#                             urllib3/ssl_
-#     (3.20.20)             - Ajout du transfert des messages
-#                             join / part / quit
-# * 2015-09-03 :
-#     (3.21.20)             - UTF-8 usage in 
-#                             telegram_bot_handle_message_text
-#--------------------------------------------------------------
 #
 from __future__ import division      # Float division
 #
@@ -135,15 +19,16 @@ def load_file_json(file_name):
 		content_dict = json.loads(content)
 		return content_dict
 # CONFIG FILES
-# Windows : "D:\\Users\\Ahmed Djoudi\\AppData\\Roaming\\"
+# Windows: You may have to replace %AppData% by an absolute path.
+# Linux: Replace username by the name of the current user.
 data_file = {
 	"user": {
-		"linux": "/root/.config/hexchat/addons/Dj4x_users.json", 
-		"windows": "D:\\Users\\Ahmed Djoudi\\AppData\\Roaming\\hexchat\\addons\\Dj4x_users.json"
+		"linux": "/home/username/.config/hexchat/addons/Dj4x_users.json", 
+		"windows": "%AppData%\\hexchat\\addons\\Dj4x_users.json"
 	}, 
 	"data": {
-		"linux": "/root/.config/hexchat/addons/Dj4x_data.json", 
-		"windows": "D:\\Users\\Ahmed Djoudi\\AppData\\Roaming\\hexchat\\addons\\Dj4x_data.json"
+		"linux": "/home/username/.config/hexchat/addons/Dj4x_data.json", 
+		"windows": "%AppData%\\hexchat\\addons\\Dj4x_data.json"
 	}
 }
 user_data = load_file_json(data_file.get("user").get(SYSTEM))
@@ -172,6 +57,7 @@ else:
 	import urllib as urllib_parse    # URL parser
 import urllib3
 urllib3.disable_warnings()
+requests.packages.urllib3.disable_warnings() # Disable SSL warnings
 #
 #--------------------------------------------------------------
 # Telegram :: Classes
@@ -358,7 +244,7 @@ def telegram_bot_get_updates():
 		else:
 			print("-- telegram_bot_get_updates(): Error %s" & "There has been an unknown error.")
 #
-def telegram_bot_send_message(chat_id, text, reply_to_message_id = None, reply_markup = None):
+def telegram_bot_send_message(chat_id, text, reply_to_message_id = None, reply_markup = None, parse_mode = None):
 	# Options
 	#	chat_id
 	#	text
@@ -373,6 +259,8 @@ def telegram_bot_send_message(chat_id, text, reply_to_message_id = None, reply_m
 		head_data.update([("reply_to_message_id", reply_to_message_id)])
 	if reply_markup != None:
 		head_data.update([("reply_markup", reply_markup)])
+	if parse_mode != None:
+		head_data.update([("parse_mode", parse_mode)])
 	# print("-- send_message(): head_data = %s" % head_data)
 	#
 	req = requests.post(url = "%s%s%s" % (telegram_bot_request, telegram_bot_token, "/sendMessage"), data = head_data)
@@ -409,10 +297,7 @@ def telegram_bot_handle_message_text(message):
 		if _text[0] == "<":
 			_from = " [fwd: %s]" % _text[1:].split(">")[0]
 			_text = ' '.join(_text[1:].split(">")[1:])[1:]
-	if PYTHON == 2:
-		print(("[#%s]\t<%s%s%s> %s" % (message.message_id, message.sender.first_name, _to, _from, message.text)).encode("UTF-8"))
-	else:
-		print("[#%s]\t<%s%s%s> %s" % (message.message_id, message.sender.first_name, _to, _from, message.text))
+	print("[#%s]\t<%s(%s)%s%s> %s" % (message.message_id, message.sender.first_name.encode("utf-8"), message.sender.id, _to.encode("utf-8"), _from.encode("utf-8"), _text.encode("UTF-8")))
 	# Telegram bridge (to IRC)
 	_multi_line_text = message.text.split('\n')
 	# Anti-flood system:
@@ -425,7 +310,7 @@ def telegram_bot_handle_message_text(message):
 		if _text[0] in data.get("triggers_all"):
 			triggers_manager(_text[0], message.sender, current_context, _text, _text[1:].split())
 		for _line in _multi_line_text:
-			current_context.command(("msg %s <%s%s> %s" % (current_context.get_info("channel"), message.sender.first_name, _from, _line)).encode("UTF-8"))
+			current_context.command("msg %s <%s%s> %s" % (current_context.get_info("channel"), message.sender.first_name.encode("utf-8"), _from, _line.encode("utf-8")))
 	#
 	# Handle commands
 	# user / chat / command / arguments(full_text)
@@ -506,6 +391,20 @@ def telegram_bot_command_user(msg, args, user, original_message_id, chat = None)
 	if cmd.lower() == "keskifichou":
 		telegram_bot_send_message(chat.id, "Une vraie chaudasse !", original_message_id)
 #
+Markdown_chars = {
+	"`": {
+		"description": "code"
+	},
+	"*": {
+		"description": "bold"
+	},
+	"_": {
+		"description": "italic"
+	},
+	"[": {
+		"description": "link_start"
+	}
+}
 # get_bot_info()
 # get_updates()
 print("EoF@offset: %s" % telegram_bot_offset)
@@ -741,7 +640,10 @@ def trig_chan(word, word_eol, userdata):
 			current_context_command_msg_chan(current_context, get_reaction.get(wrd.lower()))
 	# Telegram bridge
 	if (current_context.get_info("channel").lower() in data.get("telegram_params").get("channels")) and not telegram_bifrost_enabled:
-		telegram_bot_send_message(data.get("telegram_params").get("channels").get(current_context.get_info("channel").lower()), "<%s> %s" % (user, word[1]))
+		_text_to_send = word[1]
+		for char in Markdown_chars.keys():
+			_text_to_send = _text_to_send.replace(char, "\\%s" % char)
+		telegram_bot_send_message(data.get("telegram_params").get("channels").get(current_context.get_info("channel").lower()), "`<`*%s*`>` %s" % (user, _text_to_send), parse_mode = "Markdown")
 	return hexchat.EAT_NONE
 # Hooks the function to "Channel Message" event
 hexchat.hook_print("Channel Message", trig_chan)
@@ -768,7 +670,8 @@ def trig_hilight(word, word_eol, userdata):
 		_tipped(user, current_context, msg_full)
 	# Telegram bridge
 	if (current_context.get_info("channel").lower() in data.get("telegram_params").get("channels")) and not telegram_bifrost_enabled:
-		telegram_bot_send_message(data.get("telegram_params").get("channels").get(current_context.get_info("channel").lower()), "<%s> %s" % (user, word[1]))
+		_text_to_send = _text_to_send.replace(char, "\\%s" % char)
+		telegram_bot_send_message(data.get("telegram_params").get("channels").get(current_context.get_info("channel").lower()), "`<`*%s*`>` %s" % (user, _text_to_send), parse_mode = "Markdown")
 #
 hexchat.hook_print("Channel Msg Hilight", trig_hilight)
 #
@@ -849,7 +752,7 @@ def trig_user_join(word, word_eol, userdata):
 	user_host = word[2]
 	# Telegram bridge
 	if (channel.lower() in data.get("telegram_params").get("channels")) and (not telegram_bifrost_enabled):
-		telegram_bot_send_message(data.get("telegram_params").get("channels").get(channel.lower()), "** %s (%s) has joined %s" % (user_nick, user_host, channel))
+		telegram_bot_send_message(data.get("telegram_params").get("channels").get(channel.lower()), "** *%s* (`%s`) has joined `%s`" % (user_nick, user_host, channel), parse_mode = "Markdown")
 hexchat.hook_print("Join", trig_user_join)
 #
 def trig_user_part(word, word_eol, userdata):
@@ -859,7 +762,7 @@ def trig_user_part(word, word_eol, userdata):
 	channel = word[2]
 	# Telegram bridge
 	if (channel.lower() in data.get("telegram_params").get("channels")) and (not telegram_bifrost_enabled):
-		telegram_bot_send_message(data.get("telegram_params").get("channels").get(channel.lower()), "** %s (%s) has left %s" % (user_nick, user_host, channel))
+		telegram_bot_send_message(data.get("telegram_params").get("channels").get(channel.lower()), "** *%s* (`%s`) has left `%s`" % (user_nick, user_host, channel), parse_mode = "Markdown")
 hexchat.hook_print("Part", trig_user_part)
 #
 def trig_user_quit(word, word_eol, userdata):
@@ -871,7 +774,7 @@ def trig_user_quit(word, word_eol, userdata):
 	print("-- trig_user_quit(): channel = %s" % channel)
 	# Telegram bridge
 	if (channel.lower() in data.get("telegram_params").get("channels")) and (not telegram_bifrost_enabled):
-		telegram_bot_send_message(data.get("telegram_params").get("channels").get(channel.lower()), "** %s (%s) has quit (Reason: %s)" % (user_nick, user_host, user_quit_reason))
+		telegram_bot_send_message(data.get("telegram_params").get("channels").get(channel.lower()), "** *%s* (`%s`) has quit (Reason: _%s_)" % (user_nick, user_host, user_quit_reason), parse_mode = "Markdown")
 hexchat.hook_print("Quit", trig_user_quit)
 #
 # STORE FOUND IP
@@ -921,7 +824,7 @@ def auto_tip(user, context, cmd):
 					if _bot in [tip_channels.get("#pandacoinpnd")[3]]:
 						current_context_command_msg_chan(context, "!tip %s %s %s, \002yay!!!\002 [random tip | overall proba: %s%% | tip me to keep going!]" % (user, tip, _coin, _proba*len(tip_channels)))
 					else:
-						current_context_command_msg_user(context, _bot, "tip %s %s" % (user, tip))
+						current_context_command_msg_user(context, telegram_classes_User({"id": -1, "first_name": _bot}), "tip %s %s" % (user, tip))
 						context.command("me tipped %s %i %s, yay!!! [random tip | overall proba: %s%% | tip me to keep going!]" % (user, tip, _coin, _proba*len(tip_channels)))
 					# update balance
 					check_bal("Dj4x", None, "checkbal", [_bot])
@@ -2256,11 +2159,11 @@ def api_ticker(user, context, cmd, args):
 				_message = "%s/%s: %s [\00313,00last: \002%s\002 %s\003 | \00304,00sell: \002%s\002 %s\003 | \00302,00buy: \002%s\002 %s\003]" % (args[0].upper(), "BTC", ticker.get("exchange"), _last, _unit, _sell, _unit, _buy, _unit)
 				if "change" in ticker.get("result"):
 					_message = "%s %+0.2f%%" % (_message, ticker.get("result").get("change"))
-				current_context_command_msg_chan(context, "%s" % (_message))
+				current_context_command_msg_chan(context, "%s" % (_message), isCode = True)
 #
 def api_convert_coin(user, context, cmd, args):
 	if (len(args) > 3 or len(args) < 2):
-		current_context_command_msg_chan(context, "ERROR: Not enough or too many arguments for '%s'." % (cmd))
+		current_context_command_msg_chan(context, "ERROR: Not enough or too many arguments for '%s'." % (cmd), isCode = True)
 	else:
 		value = 1.
 		sources = []
@@ -2313,7 +2216,7 @@ def api_convert_coin(user, context, cmd, args):
 				else:
 					_price = "%.4f" % _price
 				_message = "%s: %s [\00313\002%s\002 %s\003]" % (_unit_source, source.get("exchange"), _price, _unit_target)
-				current_context_command_msg_chan(context, _message)
+				current_context_command_msg_chan(context, _message, isCode = True)
 #
 def api_chucknorrisfact(user, context, cmd, args):
 	args_TRI = ["last", "first", "top", "flop", "mtop", "mflop", "alea"]
@@ -2367,7 +2270,7 @@ def api_chucknorrisfact(user, context, cmd, args):
 			}
 			FACT_txt = ("#%(id)s [%(score).2f/10] %(fact)s" % FACT_dict)
 			if PYTHON == 2:
-				current_context_command_msg_chan(context, ("Chuck Norris fact for %s: %s" % (user, FACT_txt)).encode("UTF-8"))
+				context.command(("MSG %s Chuck Norris fact for %s: %s" % (context.get_info("channel"), user, FACT_txt)).encode("UTF-8"))
 			else:
 				current_context_command_msg_chan(context, "Chuck Norris fact for %s: %s" % (user, FACT_txt))
 #
@@ -2395,11 +2298,16 @@ def api_bitly(user, context, cmd, args):
 				req_data = req_json.get("data")
 				context.command("ME \017shortened a link from \00307Bitly\003 for %s: \00302%s\003" % (user, req_data.get("url")))
 #
-def current_context_command_msg_chan(context, msg):
+def current_context_command_msg_chan(context, msg, isCode = False):
 	context.command("msg %s %s" % (context.get_info("channel"), msg))
 	# Telegram bridge
 	if (context.get_info("channel").lower() in data.get("telegram_params").get("channels")) and not telegram_bifrost_enabled:
-		telegram_bot_send_message(data.get("telegram_params").get("channels").get(context.get_info("channel").lower()), hexchat.strip(msg, -1, 3))
+		_format = None
+		_sup = ""
+		if isCode:
+			_format = "Markdown"
+			_sup = "`"
+		telegram_bot_send_message(data.get("telegram_params").get("channels").get(context.get_info("channel").lower()), "%s%s%s" % (_sup, hexchat.strip(msg, -1, 3), _sup), parse_mode = _format)
 #
 def current_context_command_msg_user(context, user, msg):
 	context.command("msg %s %s" % (user.first_name, msg))

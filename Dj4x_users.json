@@ -1,24 +1,43 @@
 {
-	"such_user": {
-		"nicks": ["such_user", "suchuser"], 
+	"someUser": {
+		"nicks": ["nick1", "nick2", "nick3"]
+	},
+	"anotherUser": {
+		"nicks": ["wowNick"], 
 		"data": {
-			"pandapool": "Pxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-			"addie.cc": "such_user", 
-			"hashfaster": "such_api_key"
+			"pandapool": "P000000000000000000000000000000001",
+			"addie.cc": "username", 
+			"hashfaster": "suchSicretAPIkey000000000000000000000000000000000000000000000002"
 		}
 	}, 
-	"user2": {
-		"nicks": ["user2", "user2_", "_user2"], 
+	"jahus": {
+		"nicks": ["jahus", "jahus_", "_jahus"], 
 		"data": {
-			"pandapool": "Dxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", 
-			"addie.cc": "user2", 
-			"ltcrabbit": "such_secret_api_keu"
-		}
-	}, 
-	"dj4x": {
-		"nicks": ["dj4x", "dj4x_", "_dj4x"], 
-		"data": {
-			"donation": "DJ4x8RJKmBLKVaFynZsqPi71oZMdUziHmo"
-		}
+			"pandapool": "PWYpvBB93edpg7HWcbVuyFsEA6RH2BMSm3", 
+			"addie.cc": "Jahus", 
+			"ltcrabbit": "000000000000de2feadb5df7dafd89e66ab98123e92f2d4c491874817ee22dd4"
+		}, 
+		"channels": {
+			"freenode" : [
+				"##PazaakDen", 
+				"#CryptoCove", 
+				"#doge-coin", 
+				"#dogecoin", 
+				"#dogecoin-f@h", 
+				"#dogecoinfrance", 
+				"#lolcockscoin", 
+				"#pandacoinpnd", 
+				"#dogecoinscandinavia", 
+				"#dogechat",
+				"#dogecoin-bots", 
+				"#dogecoin-dev", 
+				"#tomriddle"], 
+			"undernet" : [
+				"#db", 
+				"#DBGaming", 
+				"#Udan-Urr", 
+				"#Pazaak"
+				]
+			}
 	}
 }

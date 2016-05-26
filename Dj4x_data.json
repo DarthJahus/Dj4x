@@ -1,7 +1,7 @@
 {
 	"bot": {
 		"name": "Dj4x", 
-		"version": "3.21.20", 
+		"version": "3.20.26", 
 		"description": "Dj4x bot, by Jahus", 
 		"version_info": {
 			"name": "Bonne Jenet", 
@@ -28,7 +28,6 @@
 	"auth_users": {
 		"owner": ["jahus", "jahus_", "_jahus"], 
 		"admins": ["jahus", "jahus_", "_jahus"], 
-		"admins_old": [], 
 		"users_sp": ["jahus", "jahus_", "_jahus", "sayura", "sayura_", "sayura__"]
 	}, 
 	"irchelp-fr": "%(bold)s%(colour)s03Besoin d'aide?%(bold)s %(colour)s02http://j.mp/IRC-crypto-fr%(colour)s", 
@@ -133,13 +132,13 @@
 	}, 
 	"bitly_params": {
 		"bitly_username": "dj4x", 
-		"bitly_apikey" : "such_sicret_api_key", 
+		"bitly_apikey" : "sicretKEY", 
 		"bitly_domains": ["bit.ly", "j.mp", "bitly.com"], 
 		"bitly_format": ["json", "xml", "txt"]
 	}, 
 	"bitly_params_owner": {
 		"bitly_username": "jahus", 
-		"bitly_apikey" : "such_sicret_owner_api_key", 
+		"bitly_apikey" : "sicretKEY", 
 		"bitly_domains": ["bit.ly", "j.mp", "bitly.com"], 
 		"bitly_format": ["json", "xml", "txt"]
 	},
@@ -196,11 +195,11 @@
 		}
 	},
 	"telegram_params": {
-		"token": "telegram:rules",
+		"token": "so:secure",
 		"channels": {
 			"#dogecoinfrance": -18430680
 		},
-		"timeout": 10,
-		"timeout_first": 60
+		"timeout": 5,
+		"timeout_first": 30
 	}
 }
