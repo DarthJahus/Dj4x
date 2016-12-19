@@ -66,3 +66,6 @@ After that, change the bot files to suite your needs:
 >
 > Finaly, you can search for "Dj4x" or "dj4x" in the code and replace it with your bot's name. This will be fixed in the following versions.
 
+# Important
+## Microsoft Translator has moved to Azure
+_Microsoft recommands that beginning 2017-01-01, subscribers to Microsoft Translator Text move to Azure DataMarket to avoid service disrption. For more information, see [Microsoft Translator has moved to Azure on UserVoice](https://translatorbusiness.uservoice.com/knowledgebase/articles/1078534-microsoft-translator-on-azure)._
