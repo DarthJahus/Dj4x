@@ -3,6 +3,9 @@ Dj4x
 
 Utility bot for IRC. Runs on HexChat 2.10 and later versions.
 
+> ⚠️ This project has been discontinued. If you need a bot for HexChat or IRC, you can hire me.  
+> However, don't ask me to adapt or update this project.
+
 How to clone the bot
 --------------------
 
